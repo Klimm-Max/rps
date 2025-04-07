@@ -5,6 +5,7 @@ import de.klimmmax.rpsicq.model.*
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.math.abs
+
 @Service
 class GameEngine {
 
@@ -41,6 +42,8 @@ class GameEngine {
         val figure = fromTile.figure ?: throw IllegalStateException("There is no piece to move")
 
         check(figure.ownerId == playerId) { throw IllegalStateException("Not your piece") }
+
+        check(!figure.isKing && !figure.isTrap) { throw IllegalStateException("Its not allowed to move the king or trap") }
 
         val defender = toTile.figure
 
