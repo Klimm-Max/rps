@@ -5,9 +5,31 @@ import de.klimmmax.rpsicq.model.*
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.math.abs
-
 @Service
 class GameEngine {
+
+    fun createInitialGame(p1: Player, p2: Player): Game {
+        val game = Game(players = Pair(p1, p2))
+
+        val p1Rows = listOf(0, 1)
+        val p2Rows = listOf(5, 6)
+
+        for (y in p1Rows) {
+            for (x in 0 until game.board.size) {
+                val figure = Figure(ownerId = p1.id)
+                game.board[x][y].figure = figure
+            }
+        }
+
+        for (y in p2Rows) {
+            for (x in 0 until game.board.size) {
+                val figure = Figure(ownerId = p2.id)
+                game.board[x][y].figure = figure
+            }
+        }
+
+        return game
+    }
 
     // TODO the playerId needs to be extracted via Spring Security Websocket Session
     fun processMove(game: Game, playerId: UUID, move: MoveRequest): Game {
