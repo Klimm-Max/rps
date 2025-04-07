@@ -103,13 +103,34 @@ class GameEngineProcessMoveTest {
         }
     }
 
+    @Test
+    fun `moving a piece from the other player is illegal`() {
+        val figure = Figure(ownerId = p1.id, role = Role.PAPER)
+        val startTile = game.board[0][0]
+        startTile.figure = figure
+
+        val moveRequest = MoveRequest(gameId = game.id, fromX = 0, fromY = 0, toX = 0, toY = 1)
+
+        assertThrows<IllegalStateException> {
+            gameEngine.processMove(game, p2.id, moveRequest)
+        }
+    }
+
+    @Test
+    fun `moving an empty tile is illegal`() {
+        val moveRequest = MoveRequest(gameId = game.id, fromX = 0, fromY = 0, toX = 0, toY = 1)
+
+        assertThrows<IllegalStateException> {
+            gameEngine.processMove(game, p2.id, moveRequest)
+        }
+    }
+
     @ParameterizedTest
     @MethodSource("illegalBoardCoordinates")
     fun `passing illegal board coordinates`(moveRequest: MoveRequest) {
         val figure = Figure(ownerId = p1.id, role = Role.ROCK)
         val startTile = game.board[0][0]
         startTile.figure = figure
-
 
         assertThrows<IllegalStateException> {
             gameEngine.processMove(game, p1.id, moveRequest.copy(gameId = game.id))
