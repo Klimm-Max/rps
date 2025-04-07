@@ -33,6 +33,19 @@ class GameEngineTest {
                 Arguments.of(Role.PAPER, Role.ROCK)
             )
         }
+        @JvmStatic
+        fun illegalBoardCoordinates(): List<Arguments> {
+            return listOf(
+                Arguments.of(MoveRequest(UUID.randomUUID(), 0, 0, -1, 0)),
+                Arguments.of(MoveRequest(UUID.randomUUID(), 0, 0, 0, -1)),
+                Arguments.of(MoveRequest(UUID.randomUUID(), 0, 0, 1, 1)),
+                Arguments.of(MoveRequest(UUID.randomUUID(), -1, 0, 0, 0)),
+                Arguments.of(MoveRequest(UUID.randomUUID(), 0, -1, 0, -1)),
+                Arguments.of(MoveRequest(UUID.randomUUID(), 6, 5, 6, 6)),
+                Arguments.of(MoveRequest(UUID.randomUUID(), 6, 0, 6, -1)),
+                Arguments.of(MoveRequest(UUID.randomUUID(), 0, 0, 12, 1)),
+            )
+        }
     }
 
     @BeforeEach
@@ -88,7 +101,7 @@ class GameEngineTest {
 
 
     @Test
-    fun processLegalMoveWithoutBattle() {
+    fun `a single legal move without any figure interaction`() {
         val figure = Figure(ownerId = p1.id, role = Role.ROCK)
         val startTile = game.board[0][0]
         startTile.figure = figure
@@ -108,49 +121,16 @@ class GameEngineTest {
         assertEquals(p1.id, newTile.figure!!.ownerId, "The figure's owner should remain Player 1")
     }
 
-    @Test
-    fun negativeCoordinatesAreIllegal() {
+    @ParameterizedTest
+    @MethodSource("illegalBoardCoordinates")
+    fun `passing illegal board coordinates`(moveRequest: MoveRequest) {
         val figure = Figure(ownerId = p1.id, role = Role.ROCK)
         val startTile = game.board[0][0]
         startTile.figure = figure
 
-        val moveRequest = MoveRequest(
-            gameId = game.id, fromX = 0, fromY = 0, toX = 0, toY = -1
-        )
 
         assertThrows<IllegalStateException> {
-            gameEngine.processMove(game, p1.id, moveRequest)
-        }
-    }
-
-    @Test
-    fun leavingTheBoardWithBiggerIndex() {
-        val figure = Figure(ownerId = p1.id, role = Role.ROCK)
-        val startTile = game.board[0][0]
-        startTile.figure = figure
-
-        // while the delta is still 1, the toX is out of the board (index 6 is max)
-        val moveRequest = MoveRequest(
-            gameId = game.id, fromX = 6, fromY = 0, toX = 7, toY = 0
-        )
-
-        assertThrows<IllegalStateException> {
-            gameEngine.processMove(game, p1.id, moveRequest)
-        }
-    }
-
-    @Test
-    fun movingDiagonallyIsIllegal() {
-        val figure = Figure(ownerId = p1.id, role = Role.ROCK)
-        val startTile = game.board[0][0]
-        startTile.figure = figure
-
-        val moveRequest = MoveRequest(
-            gameId = game.id, fromX = 0, fromY = 0, toX = 1, toY = 1
-        )
-
-        assertThrows<IllegalStateException> {
-            gameEngine.processMove(game, p1.id, moveRequest)
+            gameEngine.processMove(game, p1.id, moveRequest.copy(gameId = game.id))
         }
     }
 

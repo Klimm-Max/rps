@@ -96,7 +96,7 @@ class GameEngine {
         val (fromX, fromY, toX, toY) = listOf(move.fromX, move.fromY, move.toX, move.toY)
 
         if (fromX < 0 || fromY < 0 || toX < 0 || toY < 0) return false
-        if (fromX > 6 || fromY > 6 || toX > 6 || toY > 6) return false
+        if (fromX > 6 || fromY > 5 || toX > 6 || toY > 5) return false
 
         val dx = abs(fromX - toX)
         val dy = abs(fromY - toY)
