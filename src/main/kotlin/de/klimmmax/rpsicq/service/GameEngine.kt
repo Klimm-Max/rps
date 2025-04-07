@@ -12,7 +12,7 @@ class GameEngine {
         val game = Game(players = Pair(p1, p2))
 
         val p1Rows = listOf(0, 1)
-        val p2Rows = listOf(5, 6)
+        val p2Rows = listOf(4, 5)
 
         for (y in p1Rows) {
             for (x in 0 until game.board.size) {

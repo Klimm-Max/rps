@@ -64,7 +64,7 @@ class GameEngineTest {
         }
 
         // Verify player 2 figures in rows 5 and 6
-        for (y in 5..6) {
+        for (y in 4..5) {
             for (x in 0 until boardSize) {
                 val figure = board[x][y].figure
                 assertNotNull(figure, "Expected figure at ($x, $y) for Player 2")
@@ -73,7 +73,7 @@ class GameEngineTest {
         }
 
         // Verify all middle rows are empty
-        for (y in 2..4) {
+        for (y in 2..3) {
             for (x in 0 until boardSize) {
                 assertNull(board[x][y].figure, "Expected no figure at ($x, $y)")
             }
