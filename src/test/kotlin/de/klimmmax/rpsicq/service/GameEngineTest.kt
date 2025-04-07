@@ -136,7 +136,7 @@ class GameEngineTest {
 
     @ParameterizedTest
     @MethodSource("winningRoleCombinations")
-    fun battleWithAttackerWinning(attackerRole: Role, defenderRole: Role) {
+    fun `battle where the attacker wins`(attackerRole: Role, defenderRole: Role) {
         val (attacker, _) = setupAttackerAndDefenderOnBoard(attackerRole, defenderRole)
 
         val moveRequest = MoveRequest(
@@ -158,7 +158,7 @@ class GameEngineTest {
 
     @ParameterizedTest
     @MethodSource("winningRoleCombinations")
-    fun battleWithDefenderWinning(defenderRole: Role, attackerRole: Role) {
+    fun `battle where the defender wins`(defenderRole: Role, attackerRole: Role) {
         val (_, defender) = setupAttackerAndDefenderOnBoard(attackerRole, defenderRole)
 
         val moveRequest = MoveRequest(
@@ -180,7 +180,7 @@ class GameEngineTest {
 
     @ParameterizedTest
     @MethodSource("winningRoleCombinations")
-    fun trapIsAlwaysWinningAgainstAttackers(attackerRole: Role, unused: Role) {
+    fun `the trap is always removing the attacker while staying intact`(attackerRole: Role, unused: Role) {
         val (_, defender) = setupAttackerAndDefenderOnBoard(attackerRole, unused)
 
         defender.isTrap = true
@@ -203,7 +203,7 @@ class GameEngineTest {
 
     @ParameterizedTest
     @MethodSource("winningRoleCombinations")
-    fun anyAttackerAgainstKingWinsTheGame(attackerRole: Role, unused: Role) {
+    fun `any attacker against the king wins the game`(attackerRole: Role, unused: Role) {
         val (_, defender) = setupAttackerAndDefenderOnBoard(attackerRole, null)
 
         defender.isKing = true
