@@ -15,8 +15,8 @@ class GameEngineTest {
 
     @BeforeEach
     fun setUp() {
-        p1 = Player(UUID.randomUUID(), "Player 1", PLAYER_STATE.IN_GAME)
-        p2 = Player(UUID.randomUUID(), "Player 2", PLAYER_STATE.IN_GAME)
+        p1 = Player(UUID.randomUUID(), "Player 1")
+        p2 = Player(UUID.randomUUID(), "Player 2")
         gameEngine = GameEngine()
     }
 
@@ -57,5 +57,7 @@ class GameEngineTest {
         assertEquals(28, totalFigures, "Each player should have 14 figures (2 rows of 7)")
         val totalNumberOfKingsAndTraps = board.flatten().mapNotNull { it.figure }.count { it.isTrap || it.isKing }
         assertEquals(0, totalNumberOfKingsAndTraps, "There must be no king or trap placed just yet")
+        game.setupCompleted[p1.id]?.let { assertFalse(it) }
+        game.setupCompleted[p2.id]?.let { assertFalse(it) }
     }
 }
