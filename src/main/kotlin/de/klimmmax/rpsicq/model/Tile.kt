@@ -1,3 +1,5 @@
 package de.klimmmax.rpsicq.model
 
-data class Tile(val x: Int, val y: Int, var figure: Figure? = null)
+import de.klimmmax.rpsicq.dto.Position
+
+data class Tile(val position: Position, var figure: Figure? = null)

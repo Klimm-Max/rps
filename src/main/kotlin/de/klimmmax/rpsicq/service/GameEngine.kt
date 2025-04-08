@@ -1,6 +1,7 @@
 package de.klimmmax.rpsicq.service
 
 import de.klimmmax.rpsicq.dto.MoveRequest
+import de.klimmmax.rpsicq.dto.Position
 import de.klimmmax.rpsicq.model.*
 import org.springframework.stereotype.Service
 import java.util.*
@@ -36,8 +37,8 @@ class GameEngine {
     fun processMove(game: Game, playerId: UUID, move: MoveRequest): Game {
         check(isMoveValid(move)) { throw IllegalStateException("Move is not legal") }
 
-        val fromTile = game.board[move.fromX][move.fromY]
-        val toTile = game.board[move.toX][move.toY]
+        val fromTile = game.board[move.from.x][move.from.y]
+        val toTile = game.board[move.to.x][move.to.y]
 
         val figure = fromTile.figure ?: throw IllegalStateException("There is no piece to move")
 
@@ -92,18 +93,17 @@ class GameEngine {
         }
     }
 
-    /**
-     * Player moves are only legal if they are either one step horizontal or vertical while remain inside the board
-     * */
     private fun isMoveValid(move: MoveRequest): Boolean {
-        val (fromX, fromY, toX, toY) = listOf(move.fromX, move.fromY, move.toX, move.toY)
+        if (isPositionIsInvalid(move.from)) return false
+        if (isPositionIsInvalid(move.to)) return false
 
-        if (fromX < 0 || fromY < 0 || toX < 0 || toY < 0) return false
-        if (fromX > 6 || fromY > 5 || toX > 6 || toY > 5) return false
-
-        val dx = abs(fromX - toX)
-        val dy = abs(fromY - toY)
+        val dx = abs(move.from.x - move.to.x)
+        val dy = abs(move.from.y - move.to.y)
 
         return (dx == 1 && dy == 0) || (dx == 0 && dy == 1)
+    }
+
+    private fun isPositionIsInvalid(pos: Position): Boolean {
+        return pos.x < 0 || pos.y < 0 || pos.x > 6 || pos.y > 5
     }
 }

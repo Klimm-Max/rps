@@ -1,6 +1,7 @@
 package de.klimmmax.rpsicq.service
 
 import de.klimmmax.rpsicq.dto.MoveRequest
+import de.klimmmax.rpsicq.dto.Position
 import de.klimmmax.rpsicq.model.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -31,14 +32,14 @@ class GameEngineProcessMoveTest {
         @JvmStatic
         fun illegalBoardCoordinates(): List<Arguments> {
             return listOf(
-                Arguments.of(MoveRequest(UUID.randomUUID(), 0, 0, -1, 0)),
-                Arguments.of(MoveRequest(UUID.randomUUID(), 0, 0, 0, -1)),
-                Arguments.of(MoveRequest(UUID.randomUUID(), 0, 0, 1, 1)),
-                Arguments.of(MoveRequest(UUID.randomUUID(), -1, 0, 0, 0)),
-                Arguments.of(MoveRequest(UUID.randomUUID(), 0, -1, 0, -1)),
-                Arguments.of(MoveRequest(UUID.randomUUID(), 6, 5, 6, 6)),
-                Arguments.of(MoveRequest(UUID.randomUUID(), 6, 0, 6, -1)),
-                Arguments.of(MoveRequest(UUID.randomUUID(), 0, 0, 12, 1)),
+                Arguments.of(MoveRequest(UUID.randomUUID(), from = Position(0, 0), to = Position( -1, 0))),
+                Arguments.of(MoveRequest(UUID.randomUUID(), from = Position(0, 0), to = Position( 0, -1))),
+                Arguments.of(MoveRequest(UUID.randomUUID(), from = Position(0, 0), to = Position( 1, 1))),
+                Arguments.of(MoveRequest(UUID.randomUUID(), from = Position(-1, 0), to = Position( 0, 0))),
+                Arguments.of(MoveRequest(UUID.randomUUID(), from = Position(0, -1), to = Position( 0, -1))),
+                Arguments.of(MoveRequest(UUID.randomUUID(), from = Position(6, 5), to = Position( 6, 6))),
+                Arguments.of(MoveRequest(UUID.randomUUID(), from = Position(6, 0), to = Position( 6, -1))),
+                Arguments.of(MoveRequest(UUID.randomUUID(), from = Position(0, 0), to = Position( 12, 1))),
             )
         }
     }
@@ -62,9 +63,7 @@ class GameEngineProcessMoveTest {
         val startTile = game.board[0][0]
         startTile.figure = figure
 
-        val moveRequest = MoveRequest(
-            gameId = game.id, fromX = 0, fromY = 0, toX = 0, toY = 1
-        )
+        val moveRequest = MoveRequest(gameId = game.id, from = Position(0, 0), to = Position(0, 1))
 
         gameEngine.processMove(game, p1.id, moveRequest)
 
@@ -83,7 +82,7 @@ class GameEngineProcessMoveTest {
         val startTile = game.board[0][0]
         startTile.figure = figure
 
-        val moveRequest = MoveRequest(gameId = game.id, fromX = 0, fromY = 0, toX = 0, toY = 1)
+        val moveRequest = MoveRequest(gameId = game.id, from = Position(0, 0), to = Position(0, 1))
 
         assertThrows<IllegalStateException> {
             gameEngine.processMove(game, p1.id, moveRequest)
@@ -96,7 +95,7 @@ class GameEngineProcessMoveTest {
         val startTile = game.board[0][0]
         startTile.figure = figure
 
-        val moveRequest = MoveRequest(gameId = game.id, fromX = 0, fromY = 0, toX = 0, toY = 1)
+        val moveRequest = MoveRequest(gameId = game.id, from = Position(0, 0), to = Position(0, 1))
 
         assertThrows<IllegalStateException> {
             gameEngine.processMove(game, p1.id, moveRequest)
@@ -109,7 +108,7 @@ class GameEngineProcessMoveTest {
         val startTile = game.board[0][0]
         startTile.figure = figure
 
-        val moveRequest = MoveRequest(gameId = game.id, fromX = 0, fromY = 0, toX = 0, toY = 1)
+        val moveRequest = MoveRequest(gameId = game.id, from = Position(0, 0), to = Position(0, 1))
 
         assertThrows<IllegalStateException> {
             gameEngine.processMove(game, p2.id, moveRequest)
@@ -118,7 +117,7 @@ class GameEngineProcessMoveTest {
 
     @Test
     fun `moving an empty tile is illegal`() {
-        val moveRequest = MoveRequest(gameId = game.id, fromX = 0, fromY = 0, toX = 0, toY = 1)
+        val moveRequest = MoveRequest(gameId = game.id, from = Position(0, 0), to = Position(0, 1))
 
         assertThrows<IllegalStateException> {
             gameEngine.processMove(game, p2.id, moveRequest)
@@ -142,7 +141,7 @@ class GameEngineProcessMoveTest {
     fun `battle where the attacker wins`(attackerRole: Role, defenderRole: Role) {
         val (attacker, _) = setupAttackerAndDefenderOnBoard(attackerRole, defenderRole)
 
-        val moveRequest = MoveRequest(gameId = game.id, fromX = 0, fromY = 0, toX = 1, toY = 0)
+        val moveRequest = MoveRequest(gameId = game.id, from = Position(0, 0), to = Position(1, 0))
 
         gameEngine.processMove(game, p1.id, moveRequest)
 
@@ -162,7 +161,7 @@ class GameEngineProcessMoveTest {
     fun `battle where the defender wins`(defenderRole: Role, attackerRole: Role) {
         val (_, defender) = setupAttackerAndDefenderOnBoard(attackerRole, defenderRole)
 
-        val moveRequest = MoveRequest(gameId = game.id, fromX = 0, fromY = 0, toX = 1, toY = 0)
+        val moveRequest = MoveRequest(gameId = game.id, from = Position(0, 0), to = Position(1, 0))
 
         gameEngine.processMove(game, p1.id, moveRequest)
 
@@ -184,7 +183,7 @@ class GameEngineProcessMoveTest {
 
         defender.isTrap = true
 
-        val moveRequest = MoveRequest(gameId = game.id, fromX = 0, fromY = 0, toX = 1, toY = 0)
+        val moveRequest = MoveRequest(gameId = game.id, from = Position(0, 0), to = Position(1, 0))
 
         gameEngine.processMove(game, p1.id, moveRequest)
 
@@ -205,7 +204,7 @@ class GameEngineProcessMoveTest {
 
         defender.isKing = true
 
-        val moveRequest = MoveRequest(gameId = game.id, fromX = 0, fromY = 0, toX = 1, toY = 0)
+        val moveRequest = MoveRequest(gameId = game.id, from = Position(0, 0), to = Position(1, 0))
 
         gameEngine.processMove(game, p1.id, moveRequest)
 
