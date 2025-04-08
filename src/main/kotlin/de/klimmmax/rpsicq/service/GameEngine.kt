@@ -2,6 +2,7 @@ package de.klimmmax.rpsicq.service
 
 import de.klimmmax.rpsicq.dto.MoveRequest
 import de.klimmmax.rpsicq.dto.Position
+import de.klimmmax.rpsicq.dto.SetupRequest
 import de.klimmmax.rpsicq.model.*
 import org.springframework.stereotype.Service
 import java.util.*
@@ -28,6 +29,36 @@ class GameEngine {
                 val figure = Figure(ownerId = p2.id)
                 game.board[x][y].figure = figure
             }
+        }
+
+        return game
+    }
+
+    fun processSetupPhase(game: Game, playerId: UUID, setup: SetupRequest): Game {
+        check(game.currentPhase == GAME_PHASE.SETUP) { "Game must be in SETUP phase" }
+        check(!isPositionIsInvalid(setup.king)) { "Position for king placement is not legal" }
+        check(!isPositionIsInvalid(setup.trap)) { "Position for trap placement is not legal" }
+        check(game.setupCompleted.containsKey(playerId)) { "You are not part of this game" }
+        game.setupCompleted[playerId]?.let { check(!it) { "Player already completed setup step" } }
+        check(setup.king != setup.trap) { "Placing trap and king on the same tile is illegal" }
+
+        val kingTile = game.board[setup.king.x][setup.king.y]
+        val trapTile = game.board[setup.trap.x][setup.trap.y]
+
+        val kingFigure = kingTile.figure ?: throw IllegalStateException("placing the king on an empty tile is illegal")
+        val trapFigure = trapTile.figure ?: throw IllegalStateException("placing the trap on an empty tile is illegal")
+
+        check(kingFigure.ownerId == playerId && trapFigure.ownerId == playerId) {
+            "Placing the king and/or trap for the opponent is illegal"
+        }
+
+        kingFigure.isKing = true
+        trapFigure.isTrap = true
+
+        game.setupCompleted[playerId] = true
+
+        if (game.setupCompleted.values.all { it }) {
+            game.currentPhase = GAME_PHASE.PLAYER_TURN
         }
 
         return game

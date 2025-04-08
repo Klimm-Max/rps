@@ -10,7 +10,11 @@ data class Game(
         Array(6) { y -> Tile(Position(x, y)) }
     },
     var currentPhase: GAME_PHASE = GAME_PHASE.SETUP,
-    var currentPlayerTurn: UUID? = null
+    var currentPlayerTurn: UUID? = null,
+    val setupCompleted: MutableMap<UUID, Boolean> = mutableMapOf(
+        players.first.id to false,
+        players.second.id to false
+    )
 )
 
 enum class GAME_PHASE { SETUP, COIN_FLIP, PLAYER_TURN, BATTLE, END }
