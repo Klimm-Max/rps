@@ -58,7 +58,7 @@ class GameEngine {
         game.setupCompleted[playerId] = true
 
         if (game.setupCompleted.values.all { it }) {
-            game.currentPhase = GAME_PHASE.PLAYER_TURN
+            game.currentPhase = GAME_PHASE.COIN_FLIP
         }
 
         return game
