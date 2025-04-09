@@ -3,7 +3,7 @@ package de.klimmmax.rpsicq.service
 import de.klimmmax.rpsicq.dto.MoveRequest
 import de.klimmmax.rpsicq.dto.Position
 import de.klimmmax.rpsicq.model.*
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -11,7 +11,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.*
-import kotlin.test.assertEquals
 
 class GameEngineProcessMoveTest {
 
@@ -71,10 +70,10 @@ class GameEngineProcessMoveTest {
         val oldTile = game.board[0][0]
         val newTile = game.board[0][1]
 
-        Assertions.assertNull(oldTile.figure, "The figure should have moved away from the original tile")
-        Assertions.assertNotNull(newTile.figure, "The figure should be on the destination tile")
-        Assertions.assertEquals(newTile.figure, figure)
-        Assertions.assertEquals(p1.id, newTile.figure!!.ownerId, "The figure's owner should remain Player 1")
+        assertNull(oldTile.figure, "The figure should have moved away from the original tile")
+        assertNotNull(newTile.figure, "The figure should be on the destination tile")
+        assertEquals(newTile.figure, figure)
+        assertEquals(p1.id, newTile.figure!!.ownerId, "The figure's owner should remain Player 1")
     }
 
     @Test
@@ -165,12 +164,12 @@ class GameEngineProcessMoveTest {
         val oldTile = game.board[0][0]
         val newTile = game.board[1][0]
 
-        Assertions.assertNull(oldTile.figure, "The figure should have moved away from the original tile")
-        Assertions.assertNotNull(newTile.figure, "The figure should be on the destination tile")
-        Assertions.assertEquals(newTile.figure, attacker)
-        Assertions.assertEquals(p1.id, newTile.figure!!.ownerId, "The attacking figure still remains as player 1")
-        Assertions.assertEquals(game.currentPhase, GAME_PHASE.PLAYER_TURN)
-        Assertions.assertEquals(p2.id, game.currentPlayerTurn, "After playing the attack turn, it's Player 2s turn")
+        assertNull(oldTile.figure, "The figure should have moved away from the original tile")
+        assertNotNull(newTile.figure, "The figure should be on the destination tile")
+        assertEquals(newTile.figure, attacker)
+        assertEquals(p1.id, newTile.figure!!.ownerId, "The attacking figure still remains as player 1")
+        assertEquals(game.currentPhase, GAME_PHASE.PLAYER_TURN)
+        assertEquals(p2.id, game.currentPlayerTurn, "After playing the attack turn, it's Player 2s turn")
     }
 
     @ParameterizedTest
@@ -185,12 +184,12 @@ class GameEngineProcessMoveTest {
         val oldTile = game.board[0][0]
         val newTile = game.board[1][0]
 
-        Assertions.assertNull(oldTile.figure, "The attacker lost the battle, therefore the oldTile is cleaned")
-        Assertions.assertNotNull(newTile.figure, "The defender is still standing on the defending Tile")
-        Assertions.assertEquals(newTile.figure, defender)
-        Assertions.assertEquals(p2.id, newTile.figure!!.ownerId, "The defending figure still remains to player 2")
-        Assertions.assertEquals(game.currentPhase, GAME_PHASE.PLAYER_TURN)
-        Assertions.assertEquals(p2.id, game.currentPlayerTurn, "After playing the attack turn, it's Player 2s turn")
+        assertNull(oldTile.figure, "The attacker lost the battle, therefore the oldTile is cleaned")
+        assertNotNull(newTile.figure, "The defender is still standing on the defending Tile")
+        assertEquals(newTile.figure, defender)
+        assertEquals(p2.id, newTile.figure!!.ownerId, "The defending figure still remains to player 2")
+        assertEquals(game.currentPhase, GAME_PHASE.PLAYER_TURN)
+        assertEquals(p2.id, game.currentPlayerTurn, "After playing the attack turn, it's Player 2s turn")
     }
 
     @ParameterizedTest
@@ -207,11 +206,11 @@ class GameEngineProcessMoveTest {
         val oldTile = game.board[0][0]
         val newTile = game.board[1][0]
 
-        Assertions.assertNull(oldTile.figure, "The attacker fell for the trap, therefore the oldTile is cleaned")
-        Assertions.assertNotNull(newTile.figure, "The trap is still standing on the defending Tile")
-        Assertions.assertEquals(newTile.figure, defender)
-        Assertions.assertEquals(p2.id, newTile.figure!!.ownerId, "The defending figure still remains to player 2")
-        Assertions.assertEquals(p2.id, game.currentPlayerTurn, "After playing the attack turn, it's Player 2s turn")
+        assertNull(oldTile.figure, "The attacker fell for the trap, therefore the oldTile is cleaned")
+        assertNotNull(newTile.figure, "The trap is still standing on the defending Tile")
+        assertEquals(newTile.figure, defender)
+        assertEquals(p2.id, newTile.figure!!.ownerId, "The defending figure still remains to player 2")
+        assertEquals(p2.id, game.currentPlayerTurn, "After playing the attack turn, it's Player 2s turn")
     }
 
     @ParameterizedTest
@@ -225,8 +224,8 @@ class GameEngineProcessMoveTest {
 
         gameEngine.processMove(game, p1.id, moveRequest)
 
-        Assertions.assertEquals(GAME_PHASE.END, game.currentPhase, "The game is in the final END state")
-        Assertions.assertEquals(p1.id, game.currentPlayerTurn, "The player who started the attack on the king, wins")
+        assertEquals(GAME_PHASE.END, game.currentPhase, "The game is in the final END state")
+        assertEquals(p1.id, game.currentPlayerTurn, "The player who started the attack on the king, wins")
     }
 
     private fun setupAttackerAndDefenderOnBoard(attackerRole: Role, defenderRole: Role?): Pair<Figure, Figure> {
