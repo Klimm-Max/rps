@@ -64,22 +64,22 @@ class GameEngine {
         return game
     }
 
-    // TODO the playerId needs to be extracted via Spring Security Websocket Session
     fun processMove(game: Game, playerId: UUID, move: MoveRequest): Game {
-        check(isMoveValid(move)) { throw IllegalStateException("Move is not legal") }
+        check(isMoveValid(move)) { "Move is not legal" }
 
         val fromTile = game.board[move.from.x][move.from.y]
         val toTile = game.board[move.to.x][move.to.y]
 
         val figure = fromTile.figure ?: throw IllegalStateException("There is no piece to move")
 
-        check(figure.ownerId == playerId) { throw IllegalStateException("Not your piece") }
+        check(figure.ownerId == playerId) { "Not your piece" }
 
-        check(!figure.isKing && !figure.isTrap) { throw IllegalStateException("Its not allowed to move the king or trap") }
+        check(!figure.isKing && !figure.isTrap) { "Its not allowed to move the king or trap" }
 
         val defender = toTile.figure
 
         if (defender != null) {
+            check(defender.ownerId != playerId) { "You can not attack your own figures" }
             resolveBattle(game, figure, defender, toTile)
         } else {
             toTile.figure = figure
@@ -87,7 +87,8 @@ class GameEngine {
 
         if (game.currentPhase == GAME_PHASE.PLAYER_TURN) {
             fromTile.figure = null
-            game.currentPlayerTurn = if (game.players.first.id == playerId) game.players.second.id else game.players.first.id
+            game.currentPlayerTurn =
+                if (game.players.first.id == playerId) game.players.second.id else game.players.first.id
         }
 
         return game
@@ -113,12 +114,14 @@ class GameEngine {
             else -> "defender"
         }
 
-        when(result) {
+        when (result) {
             "attacker" -> {
                 toTile.figure = attacker
                 game.currentPhase = GAME_PHASE.PLAYER_TURN
             }
-            "defender" -> game.currentPhase = GAME_PHASE.PLAYER_TURN // defender just stays, fromTile will be cleared later in game loop
+
+            "defender" -> game.currentPhase =
+                GAME_PHASE.PLAYER_TURN // defender just stays, fromTile will be cleared later in game loop
             "tie" -> game.currentPhase = GAME_PHASE.BATTLE
             "won" -> game.currentPhase = GAME_PHASE.END
         }

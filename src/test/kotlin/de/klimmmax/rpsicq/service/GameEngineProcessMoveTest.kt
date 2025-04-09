@@ -11,6 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.*
+import kotlin.test.assertEquals
 
 class GameEngineProcessMoveTest {
 
@@ -46,8 +47,8 @@ class GameEngineProcessMoveTest {
 
     @BeforeEach
     fun setUp() {
-        p1 = Player(UUID.randomUUID(), "Player 1", PLAYER_STATE.IN_GAME)
-        p2 = Player(UUID.randomUUID(), "Player 2", PLAYER_STATE.IN_GAME)
+        p1 = Player(UUID.randomUUID(), "Player 1")
+        p2 = Player(UUID.randomUUID(), "Player 2")
         game = Game(
             id = UUID.randomUUID(),
             players = Pair(p1, p2),
@@ -121,6 +122,22 @@ class GameEngineProcessMoveTest {
 
         assertThrows<IllegalStateException> {
             gameEngine.processMove(game, p2.id, moveRequest)
+        }
+    }
+
+    @Test
+    fun `attacking the own figure is illegal`() {
+        val figure = Figure(ownerId = p1.id, role = Role.ROCK)
+        val startTile = game.board[0][0]
+        startTile.figure = figure
+
+        val targetTile = game.board[0][1]
+        targetTile.figure =  Figure(ownerId = p1.id, role = Role.PAPER)
+
+        val moveRequest = MoveRequest(gameId = game.id, from = Position(0, 0), to = targetTile.position)
+
+        assertThrows<IllegalStateException> {
+            gameEngine.processMove(game, p1.id, moveRequest)
         }
     }
 
