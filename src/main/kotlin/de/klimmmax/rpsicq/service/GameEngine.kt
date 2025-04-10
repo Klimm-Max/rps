@@ -1,5 +1,6 @@
 package de.klimmmax.rpsicq.service
 
+import de.klimmmax.rpsicq.dto.BattleRequest
 import de.klimmmax.rpsicq.dto.MoveRequest
 import de.klimmmax.rpsicq.dto.Position
 import de.klimmmax.rpsicq.dto.SetupRequest
@@ -84,7 +85,7 @@ class GameEngine {
 
         if (defender != null) {
             check(defender.ownerId != playerId) { "You can not attack your own figures" }
-            resolveBattle(game, figure, defender, toTile)
+            resolveAttackDuringPlayerTurn(game, figure, defender, fromTile, toTile)
         } else {
             toTile.figure = figure
         }
@@ -98,7 +99,56 @@ class GameEngine {
         return game
     }
 
-    private fun resolveBattle(game: Game, attacker: Figure, defender: Figure, toTile: Tile) {
+    fun processBattle(game: Game, playerId: UUID, battleRequest: BattleRequest): Game {
+        check(game.currentPhase == GAME_PHASE.BATTLE) { "Game must be in BATTLE phase" }
+        val state = game.battleState ?: throw IllegalStateException("No active battle state")
+        val attackerFigure = state.attacker.figure ?: throw IllegalStateException("Attacker tile has no figure")
+        val defenderFigure = state.defender.figure ?: throw IllegalStateException("Defender tile has no figure")
+        check(state.roles.containsKey(playerId)) { "Player $playerId is not part of the battle" }
+        check(state.roles[playerId] == null) { "Player $playerId has already submitted a role" }
+
+        state.roles[playerId] = battleRequest.role
+        // Wait for both players to submit their roles
+        if (state.roles.values.any { it == null }) return game
+
+        val attackerId = attackerFigure.ownerId
+        val defenderId = defenderFigure.ownerId
+
+        check(attackerId != defenderId) { "Attacker and defender must be different players" }
+
+        val attackerChoice = state.roles[attackerId]!!
+        val defenderChoice = state.roles[defenderId]!!
+        when (resolveRPSBattle(attackerChoice, defenderChoice)) {
+            "tie" -> {
+                state.roles[attackerId] = null
+                state.roles[defenderId] = null
+            }
+
+            "attacker" -> {
+                game.board[state.defender.position.x][state.defender.position.y].figure = attackerFigure
+                state.attacker.figure = null
+                game.battleState = null
+                game.currentPhase = GAME_PHASE.PLAYER_TURN
+            }
+
+            "defender" -> {
+                game.board[state.attacker.position.x][state.attacker.position.y].figure = null
+                game.battleState = null
+                game.currentPhase = GAME_PHASE.PLAYER_TURN
+            }
+        }
+
+        return game
+    }
+
+
+    private fun resolveAttackDuringPlayerTurn(
+        game: Game,
+        attacker: Figure,
+        defender: Figure,
+        fromTile: Tile,
+        toTile: Tile
+    ) {
         if (defender.isTrap) {
             return
         }
@@ -106,16 +156,13 @@ class GameEngine {
         attacker.isRevealed = true
         defender.isRevealed = true
 
-        val attack = attacker.role
-        val defend = defender.role
+        val attack =
+            attacker.role ?: throw IllegalStateException("Attacker must have set a Role, otherwise it can't attack")
 
-        val result = when {
-            attack == defend -> "tie"
-            attack == Role.ROCK && defend == Role.SCISSORS -> "attacker"
-            attack == Role.PAPER && defend == Role.ROCK -> "attacker"
-            attack == Role.SCISSORS && defend == Role.PAPER -> "attacker"
-            defender.isKing -> "won"
-            else -> "defender"
+        val result = if (defender.isKing) {
+            "won"
+        } else {
+            resolveRPSBattle(attack, defender.role!!)
         }
 
         when (result) {
@@ -124,10 +171,24 @@ class GameEngine {
                 game.currentPhase = GAME_PHASE.PLAYER_TURN
             }
 
-            "defender" -> game.currentPhase =
-                GAME_PHASE.PLAYER_TURN // defender just stays, fromTile will be cleared later in game loop
-            "tie" -> game.currentPhase = GAME_PHASE.BATTLE
+            "defender" -> game.currentPhase = GAME_PHASE.PLAYER_TURN // defender stays, fromTile will be cleared later
+            "tie" -> {
+                game.battleState =
+                    BattleState(fromTile, toTile, mutableMapOf(attacker.ownerId to null, defender.ownerId to null))
+                game.currentPhase = GAME_PHASE.BATTLE
+            }
+
             "won" -> game.currentPhase = GAME_PHASE.END
+        }
+    }
+
+    private fun resolveRPSBattle(attackerRole: Role, defenderRole: Role): String {
+        return when {
+            attackerRole == defenderRole -> "tie"
+            attackerRole == Role.ROCK && defenderRole == Role.SCISSORS -> "attacker"
+            attackerRole == Role.PAPER && defenderRole == Role.ROCK -> "attacker"
+            attackerRole == Role.SCISSORS && defenderRole == Role.PAPER -> "attacker"
+            else -> "defender"
         }
     }
 

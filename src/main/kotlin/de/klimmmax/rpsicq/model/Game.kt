@@ -14,7 +14,8 @@ data class Game(
     val setupCompleted: MutableMap<UUID, Boolean> = mutableMapOf(
         players.first.id to false,
         players.second.id to false
-    )
+    ),
+    var battleState: BattleState? = null
 )
 
 enum class GAME_PHASE { SETUP, PLAYER_TURN, BATTLE, END }
