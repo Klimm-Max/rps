@@ -40,8 +40,8 @@ class GameEngine {
 
     fun processSetupPhase(game: Game, playerId: UUID, setup: SetupRequest): Game {
         check(game.currentPhase == GAME_PHASE.SETUP) { "Game must be in SETUP phase" }
-        check(!isPositionIsInvalid(setup.king)) { "Position for king placement is not legal" }
-        check(!isPositionIsInvalid(setup.trap)) { "Position for trap placement is not legal" }
+        check(!isPositionInvalid(setup.king)) { "Position for king placement is not legal" }
+        check(!isPositionInvalid(setup.trap)) { "Position for trap placement is not legal" }
         check(game.setupCompleted.containsKey(playerId)) { "You are not part of this game" }
         game.setupCompleted[playerId]?.let { check(!it) { "Player already completed setup step" } }
         check(setup.king != setup.trap) { "Placing trap and king on the same tile is illegal" }
@@ -193,8 +193,8 @@ class GameEngine {
     }
 
     private fun isMoveValid(move: MoveRequest): Boolean {
-        if (isPositionIsInvalid(move.from)) return false
-        if (isPositionIsInvalid(move.to)) return false
+        if (isPositionInvalid(move.from)) return false
+        if (isPositionInvalid(move.to)) return false
 
         val dx = abs(move.from.x - move.to.x)
         val dy = abs(move.from.y - move.to.y)
@@ -202,7 +202,7 @@ class GameEngine {
         return (dx == 1 && dy == 0) || (dx == 0 && dy == 1)
     }
 
-    private fun isPositionIsInvalid(pos: Position): Boolean {
+    private fun isPositionInvalid(pos: Position): Boolean {
         return pos.x < 0 || pos.y < 0 || pos.x > 6 || pos.y > 5
     }
 }
