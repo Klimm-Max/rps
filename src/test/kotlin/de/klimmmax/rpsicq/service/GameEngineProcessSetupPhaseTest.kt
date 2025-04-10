@@ -137,6 +137,6 @@ class GameEngineProcessSetupPhaseTest {
         }
         game.setupCompleted[p1.id]?.let { assertTrue(it) }
         game.setupCompleted[p2.id]?.let { assertTrue(it) }
-        assertEquals(GAME_PHASE.COIN_FLIP, game.currentPhase, "phase must be in COIN_FLIP once setup phase is completed")
+        assertEquals(GAME_PHASE.PLAYER_TURN, game.currentPhase, "phase must be in COIN_FLIP once setup phase is completed")
     }
 }

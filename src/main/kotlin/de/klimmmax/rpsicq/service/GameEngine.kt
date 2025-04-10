@@ -5,8 +5,10 @@ import de.klimmmax.rpsicq.dto.Position
 import de.klimmmax.rpsicq.dto.SetupRequest
 import de.klimmmax.rpsicq.model.*
 import org.springframework.stereotype.Service
-import java.util.*
+import java.util.UUID
+
 import kotlin.math.abs
+import kotlin.random.Random
 
 @Service
 class GameEngine {
@@ -31,6 +33,7 @@ class GameEngine {
             }
         }
 
+        game.currentPlayerTurn = if (Random.nextBoolean()) game.players.first.id else game.players.second.id
         return game
     }
 
@@ -58,13 +61,14 @@ class GameEngine {
         game.setupCompleted[playerId] = true
 
         if (game.setupCompleted.values.all { it }) {
-            game.currentPhase = GAME_PHASE.COIN_FLIP
+            game.currentPhase = GAME_PHASE.PLAYER_TURN
         }
 
         return game
     }
 
     fun processMove(game: Game, playerId: UUID, move: MoveRequest): Game {
+        check(game.currentPhase == GAME_PHASE.PLAYER_TURN) { "Game must be in PLAYER_TURN phase" }
         check(isMoveValid(move)) { "Move is not legal" }
 
         val fromTile = game.board[move.from.x][move.from.y]

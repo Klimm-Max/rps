@@ -17,4 +17,4 @@ data class Game(
     )
 )
 
-enum class GAME_PHASE { SETUP, COIN_FLIP, PLAYER_TURN, BATTLE, END }
+enum class GAME_PHASE { SETUP, PLAYER_TURN, BATTLE, END }
