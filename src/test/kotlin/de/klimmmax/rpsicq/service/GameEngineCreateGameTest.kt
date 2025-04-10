@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import java.util.*
 
-class GameEngineTest {
+class GameEngineCreateGameTest {
 
     private lateinit var gameEngine: GameEngine
     private lateinit var p1: Player
